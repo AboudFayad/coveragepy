@@ -1,0 +1,103 @@
+{# Licensed under the Apache License: http://www.apache.org/licenses/LICENSE-2.0 #}
+{# For details: https://github.com/nedbat/coveragepy/blob/master/NOTICE.txt #}
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    {# IE8 rounds line-height incorrectly, and adding this emulateIE7 line makes it right! #}
+    {# http://social.msdn.microsoft.com/Forums/en-US/iewebdevelopment/thread/7684445e-f080-4d8f-8529-132763348e21 #}
+    <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
+    <title>Coverage for {{fr.relative_filename|escape}}: {{nums.pc_covered_str}}%</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    {% if extra_css %}
+        <link rel="stylesheet" href="{{ extra_css }}" type="text/css">
+    {% endif %}
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="jquery.isonscreen.js"></script>
+    <script type="text/javascript" src="coverage_html.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(coverage.pyfile_ready);
+    </script>
+</head>
+<body class="pyfile" style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 16px;font-family: georgia, serif;vertical-align: baseline">
+     <div id="header" style="background: #f8f8f8;width: 100%;border-bottom: 1px solid #eee">
+        <div class="content" style="padding: 1em 3em">
+            <h1 style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 1.25em;font-family: inherit;vertical-align: baseline;display: inline-block">Coverage for <b>{{fr.relative_filename|escape}}</b> :
+                <span class="pc_cov">{{nums.pc_covered_str}}%</span>
+            </h1>
+    
+            <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" style="float: right;margin: 5px;cursor: pointer"/>
+    
+            <h2 class="stats" style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 1em;font-family: inherit;vertical-align: baseline;margin-top: 0.5em">
+                {{nums.n_statements}} statements &nbsp;
+                <span class="{{c_run}} shortkey_r button_toggle_run" style="border: 1px solid;padding: 0.1em 0.25em;margin: 0 0.1em;cursor: pointer;border-color: #ccc #999 #999 #ccc;background: #efe">{{nums.n_executed}} run</span>
+                <span class="{{c_mis}} shortkey_m button_toggle_mis" style="border: 1px solid;padding: 0.1em 0.25em;margin: 0 0.1em;cursor: pointer;border-color: #999 #ccc #ccc #999;background: #fdd">{{nums.n_missing}} missing</span>
+                <span class="{{c_exc}} shortkey_x button_toggle_exc" style="border: 1px solid;padding: 0.1em 0.25em;margin: 0 0.1em;cursor: pointer;border-color: #999 #ccc #ccc #999;background: #eee">{{nums.n_excluded}} excluded</span>
+    
+                {% if has_arcs %}
+                    <span class="{{c_par}} shortkey_p button_toggle_par" style="border: 1px solid;padding: 0.1em 0.25em;margin: 0 0.1em;cursor: pointer;border-color: #999 #ccc #ccc #999;background: #ffa">{{nums.n_partial_branches}} partial</span>
+                {% endif %}
+            </h2>
+        </div>
+    </div>
+    
+    <div class="help_panel" style="position: absolute;background: #ffc;padding: 0.5em;border: 1px solid #883;display: none;width: 16em;height: 8em">
+        <img id="panel_icon" src="keybd_open.png" alt="Hide keyboard shortcuts" style="float: right;cursor: pointer"/>
+        <p class="legend" style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: italic;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em;margin-bottom: 1em">Hot-keys on this page</p>
+        <div>
+        <p class="keyhelp" style="margin: 0.75em;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em">
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">r</span>
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">m</span>
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">x</span>
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">p</span> &nbsp; toggle line displays
+        </p>
+        <p class="keyhelp" style="margin: 0.75em;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em">
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">j</span>
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">k</span> &nbsp; next/prev highlighted chunk
+        </p>
+        <p class="keyhelp" style="margin: 0.75em;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em">
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">0</span> &nbsp; (zero) top of page
+        </p>
+        <p class="keyhelp" style="margin: 0.75em;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em">
+            <span class="key" style="border: 1px solid black;border-color: #888 #333 #333 #888;padding: 0.1em 0.35em;font-family: monospace;font-weight: bold;background: #eee">1</span> &nbsp; (one) first highlighted chunk
+        </p>
+        </div>
+    </div>
+    
+    <div id="source" style='padding: 1em;font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace'>
+        <table style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 100%;font-family: inherit;vertical-align: baseline;border-collapse: collapse">
+            <tr>
+                <td class="linenos" style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 100%;font-family: inherit;vertical-align: top">
+    {% for line in lines -%}
+        <p id="n{{line.number}}" class="{{line.class}}" style="margin: 0;padding: 0 0.5em;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.625em;font-family: verdana, sans-serif;vertical-align: baseline;line-height: 1.6em;text-align: right;color: #999"><a href="#n{{line.number}}" style="text-decoration: none;color: #999">{{line.number}}</a></p>
+    {% endfor %}
+                </td>
+                <td class="text" style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 100%;font-family: inherit;vertical-align: top;width: 100%">
+    {# These are the source lines, which are very sensitive to whitespace. -#}
+    {# The `{ # - # }` below are comments which slurp up the following space. -#}
+    {% for line in lines -%}
+        <p id="t{{line.number}}" class="{{line.class}}" style="{{line.style}}">{#-#}
+            {% if line.annotate -%}
+                <span class="annotate short" style="font-family: georgia;color: #666;float: right;padding-right: 0.5em">{{line.annotate}}</span>{#-#}
+                <span class="annotate long" style="font-family: georgia;color: #666;float: right;padding-right: 0.5em;display: none">{{line.annotate_long}}</span>{#-#}
+            {% endif -%}
+            {{line.html}}<span class="strut">&nbsp;</span>{#-#}
+        </p>
+    {% endfor %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <div id="footer" style="margin: 1em 1em">
+        <div class="content" style="padding: 0;font-size: 85%;font-family: verdana, sans-serif;color: #666;font-style: italic">
+            <p style="margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em">
+                <a class="nav" href="index.html" style="text-decoration: none;color: inherit">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="{{__url__}}" style="text-decoration: none;color: inherit">coverage.py v{{__version__}}</a>,
+                created at {{ time_stamp }}
+            </p>
+        </div>
+    </div>
+    
+    </body>
+</html>
