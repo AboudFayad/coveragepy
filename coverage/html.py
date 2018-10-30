@@ -96,8 +96,17 @@ class HtmlReporter(Reporter):
         title = self.config.html_title
         try:
             self.inline_styles = self.config.inline_styles
-        except:
+            self.not_inline_styles = False
+
+            # reading the css stylesheet
+            f = open(os.path.join(os.path.dirname(__file__), *["htmlfiles", "style.css"]))
+            self.css_styles = f.read().decode('utf-8').strip()
+            f.flush()
+            f.close()
+        except Exception as e:
             self.inline_styles = False
+            self.not_inline_styles = True
+            self.css_styles = None
         if env.PY2:
             title = title.decode("utf8")
         self.template_globals = {
@@ -108,10 +117,7 @@ class HtmlReporter(Reporter):
             '__version__': coverage.__version__,
         }
 
-        if self.inline_styles:
-            self.source_tmpl = Templite(read_data("pyfile_inline.html"), self.template_globals)
-        else:
-            self.source_tmpl = Templite(read_data("pyfile.html"), self.template_globals)
+        self.source_tmpl = Templite(read_data("pyfile.html"), self.template_globals)
 
         self.data = cov.get_data()
 
@@ -222,32 +228,21 @@ class HtmlReporter(Reporter):
         c_mis = "mis"
         c_par = "par " + c_run
 
-        # styles for lines when inline-styles is used
-        s_run = "margin: 0;padding: 0 0 0 0.5em;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em;border-left: 2px solid #0f0;white-space: pre;position: relative;background: inherit"
-        s_exc = "margin: 0;padding: 0 0 0 0.5em;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em;border-left: 2px solid #808080;white-space: pre;position: relative;background: #eee"
-        s_mis = "margin: 0;padding: 0 0 0 0.5em;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em;border-left: 2px solid #f00;white-space: pre;position: relative;background: #fdd"
-        s_par = "margin: 0;padding: 0 0 0 0.5em;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em;border-left: 2px solid #ee9;white-space: pre;position: relative;background: inherit"
-        s_pln = "margin: 0;padding: 0 0 0 0.5em;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 0.75em;font-family: inherit;vertical-align: baseline;line-height: 1.33333333em;border-left: 2px solid #fff;white-space: pre;position: relative"
-
         lines = []
 
         for lineno, line in enumerate(fr.source_token_lines(), start=1):
             # Figure out how to mark this line.
             line_class = []
-            line_style = ""
             annotate_html = ""
             annotate_long = ""
             if lineno in analysis.statements:
                 line_class.append("stm")
             if lineno in analysis.excluded:
                 line_class.append(c_exc)
-                line_style = s_exc
             elif lineno in analysis.missing:
                 line_class.append(c_mis)
-                line_style = s_mis
             elif self.has_arcs and lineno in missing_branch_arcs:
                 line_class.append(c_par)
-                line_style = s_par
                 shorts = []
                 longs = []
                 for b in missing_branch_arcs[lineno]:
@@ -271,7 +266,6 @@ class HtmlReporter(Reporter):
                     )
             elif lineno in analysis.statements:
                 line_class.append(c_run)
-                line_style = s_run
 
             # Build the HTML for the line.
             html = []
@@ -280,18 +274,9 @@ class HtmlReporter(Reporter):
                     html.append(escape(tok_text))
                 else:
                     tok_html = escape(tok_text) or '&nbsp;'
-                    if self.inline_styles and tok_type == 'key':
-                        html.append(
-                            '<span class="%s" style="font-weight: bold;line-height: 1px;">%s</span>' % (tok_type, tok_html)
-                        )
-                    elif self.inline_styles and tok_type == 'str':
-                        html.append(
-                            '<span class="%s" style="color: #000080;">%s</span>' % (tok_type, tok_html)
-                        )
-                    else:
-                        html.append(
-                            '<span class="%s">%s</span>' % (tok_type, tok_html)
-                        )
+                    html.append(
+                        '<span class="%s">%s</span>' % (tok_type, tok_html)
+                    )
 
             lines.append({
                 'html': ''.join(html),
@@ -299,7 +284,6 @@ class HtmlReporter(Reporter):
                 'class': ' '.join(line_class) or "pln",
                 'annotate': annotate_html,
                 'annotate_long': annotate_long,
-                'style': line_style or s_pln,
             })
 
         # Write the HTML page for this file.
@@ -315,6 +299,8 @@ class HtmlReporter(Reporter):
             'lines': lines,
             'time_stamp': self.time_stamp,
             'inline_styles': self.inline_styles,
+            'not_inline_styles': self.not_inline_styles,
+            'css_styles': self.css_styles,
         })
 
         write_html(html_path, html)
@@ -330,10 +316,7 @@ class HtmlReporter(Reporter):
 
     def index_file(self):
         """Write the index.html file for this report."""
-        if self.inline_styles:
-            index_tmpl = Templite(read_data("index_inline.html"), self.template_globals)
-        else:
-            index_tmpl = Templite(read_data("index.html"), self.template_globals)
+        index_tmpl = Templite(read_data("index.html"), self.template_globals)
 
         self.totals = sum(self.all_files_nums)
 
@@ -344,6 +327,8 @@ class HtmlReporter(Reporter):
             'totals': self.totals,
             'time_stamp': self.time_stamp,
             'inline_styles': self.inline_styles,
+            'not_inline_styles': self.not_inline_styles,
+            'css_styles': self.css_styles,
         })
 
         write_html(os.path.join(self.directory, "index.html"), html)
